@@ -1,0 +1,15 @@
+*.resources
+LASSharpReader/obj/Debug/LASSharpReader.exe
+*.pdb
+LASSharpReader/obj/Debug/LASSharpReader.csprojResolveAssemblyReference.cache
+*.Cache
+LASSharpReader/obj/Debug/LASSharpReader.csproj.FileListAbsolute.txt
+LASSharpReader/obj/Debug/TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs
+LASSharpReader/obj/Debug/TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs
+LASSharpReader/obj/Debug/TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs
+*.exe
+.vs/LASSharpReader/v14/.suo
+LASSharpReader/bin/Debug/LASSharpReader.exe.config
+LASSharpReader/bin/Debug/LASSharpReader.exe.CodeAnalysisLog.xml
+LASSharpReader/bin/Debug/LASSharpReader.exe.lastcodeanalysissucceeded
+LASSharpReader/bin/Debug/LASSharpReader.vshost.exe.config
