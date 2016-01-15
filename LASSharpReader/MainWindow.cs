@@ -28,15 +28,21 @@ namespace LASSharpReader
             loadedFileLabelTooltip.SetToolTip(fileLabel, text);
         }
 
-        private void loadLASButton_Click(object sender, EventArgs e)
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DialogResult result = openLASDialog.ShowDialog( this );
+            DialogResult result = openLASDialog.ShowDialog(this);
 
             if (result == DialogResult.OK)
             {
-                fileLabel.Text = "File loaded: " + openLASDialog.FileName;
+                fileLabel.Text = "Loaded file: " + openLASDialog.FileName;
                 loadedFileLabelTooltip.SetToolTip(fileLabel, openLASDialog.FileName);
             }
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //TODO: Liberar recursos
+            Close();
         }
     }
 }
