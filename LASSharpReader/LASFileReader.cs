@@ -115,7 +115,7 @@ namespace LASSharpReader
         /// <summary>
         /// Other information section
         /// </summary>
-        private LASField[] _otherInformation;
+        private string _otherInformation;
 
         /// <summary>
         /// ASCII section values

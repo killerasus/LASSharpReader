@@ -12,7 +12,8 @@ namespace LASSharpReader
     {
         
         private string _mnemonic;
-        private string _value;
+        private string _unit;
+        private string _data;
         private string _comment;
 
         /// <summary>
@@ -31,9 +32,24 @@ namespace LASSharpReader
         }
 
         /// <summary>
-        /// Value column
+        /// Unit column
         /// </summary>
-        public string Value
+        public string Unit
+        {
+            get
+            {
+                throw new System.NotImplementedException();
+            }
+
+            set
+            {
+            }
+        }
+
+        /// <summary>
+        /// Data column
+        /// </summary>
+        public string Data
         {
             get
             {
