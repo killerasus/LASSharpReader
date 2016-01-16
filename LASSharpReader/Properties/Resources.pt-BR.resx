@@ -118,24 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="about" xml:space="preserve">
-    <value>&amp;About</value>
+    <value>&amp;Sobre</value>
   </data>
   <data name="close" xml:space="preserve">
-    <value>&amp;Close</value>
+    <value>&amp;Fechar</value>
   </data>
   <data name="file" xml:space="preserve">
-    <value>&amp;File</value>
+    <value>&amp;Arquivo</value>
   </data>
   <data name="help" xml:space="preserve">
-    <value>&amp;Help</value>
+    <value>&amp;Ajuda</value>
   </data>
   <data name="loadedFile" xml:space="preserve">
-    <value>Loaded file: </value>
+    <value>Arquivo carregado: </value>
   </data>
   <data name="noFileLoaded" xml:space="preserve">
-    <value>No file loaded.</value>
+    <value>Nenhum arquivo carregado.</value>
   </data>
   <data name="open" xml:space="preserve">
-    <value>&amp;Open</value>
+    <value>&amp;Abrir</value>
   </data>
 </root>
