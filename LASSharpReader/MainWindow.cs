@@ -12,6 +12,8 @@ namespace LASSharpReader
 {
     public partial class MainWindow : Form
     {
+        private LASFileReader lasReader = new LASFileReader();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -34,15 +36,33 @@ namespace LASSharpReader
 
             if (result == DialogResult.OK)
             {
-                fileLabel.Text = "Loaded file: " + openLASDialog.FileName;
-                loadedFileLabelTooltip.SetToolTip(fileLabel, openLASDialog.FileName);
+                string filePath = openLASDialog.FileName;
+                string errorMessage = "";
+                bool valid = lasReader.ReadFile(filePath, ref errorMessage);
+
+                if(!valid)
+                {
+                    MessageBox.Show( "Error loading file: " + filePath + '\n' + errorMessage, "LASSharpReader");
+                    fileLabel.Text = "Loaded file: No file loaded.";
+                    loadedFileLabelTooltip.SetToolTip(fileLabel, filePath);
+                }
+                else
+                {
+                    fileLabel.Text = "Loaded file: " + filePath;
+                    loadedFileLabelTooltip.SetToolTip(fileLabel, filePath);
+                }
             }
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //TODO: Liberar recursos
             Close();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LASSharpReader.AboutBox about = new LASSharpReader.AboutBox();
+            about.ShowDialog();
         }
     }
 }
