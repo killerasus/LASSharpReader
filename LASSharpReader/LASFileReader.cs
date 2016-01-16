@@ -86,5 +86,40 @@ namespace LASSharpReader
         /// Path to the current open LAS file
         /// </summary>
         private string _filePath;
+
+        /// <summary>
+        /// Well null value
+        /// </summary>
+        private double _nullValue;
+
+        /// <summary>
+        /// Version information section
+        /// </summary>
+        private LASField[] _versionInformation;
+
+        /// <summary>
+        /// Curve information section
+        /// </summary>
+        private LASField[] _curveInformation;
+
+        /// <summary>
+        /// Well information section
+        /// </summary>
+        private LASField[] _wellInformation;
+
+        /// <summary>
+        /// Parameter information section
+        /// </summary>
+        private LASField[] _parameterInformation;
+
+        /// <summary>
+        /// Other information section
+        /// </summary>
+        private LASField[] _otherInformation;
+
+        /// <summary>
+        /// ASCII section values
+        /// </summary>
+        private double[] _asciiValues;
     }
 }
