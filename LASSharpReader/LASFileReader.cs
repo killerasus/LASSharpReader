@@ -17,6 +17,31 @@ namespace LASSharpReader
         public LASFileReader( )
         {
             _state = LASReadingState.Initial;
+            _versionInformation = new List<LASField>();
+            _wellInformation = new List<LASField>();
+            _curveInformation = new List<LASField>();
+            _parameterInformation = new List<LASField>();
+            _asciiValues = new List<double>();
+        }
+
+        /// <summary>
+        /// Resets the LASFileReader states
+        /// </summary>
+        private void Reset()
+        {
+            _state = LASReadingState.Initial;
+            _nullValue = -9999.25;
+            _filePath = "";
+            _wellInformation.Clear();
+            _curveInformation.Clear();
+            _parameterInformation.Clear();
+            _otherInformation = "";
+            _asciiValues.Clear();
+            _foundVersionSection = false;
+            _foundWellSection = false;
+            _foundCurveSection = false;
+            _foundParametersSection = false;
+            _foundAsciiSection = false;
         }
         
         /// <summary>
@@ -44,7 +69,10 @@ namespace LASSharpReader
                     lines++;
                     if (!processLine(line, ref lineProcessingErrorMessage))
                     {
-                        errorMessage = string.Format("Line[{0}]: {1}", line, lineProcessingErrorMessage);
+                        errorMessage = string.Format("Line[{0}]: {1}", lines, lineProcessingErrorMessage);
+#if DEBUG
+                        errorMessage += string.Format("\nState = {0}", _state.ToString());
+#endif
                         valid = false;
                         break;
                     }
@@ -136,6 +164,7 @@ namespace LASSharpReader
                 if (line[1] == 'V')
                 {
                     _state = LASReadingState.VersionSection;
+                    _foundVersionSection = true;
                     return true;
                 }
                 else
@@ -166,16 +195,7 @@ namespace LASSharpReader
             }
             else if (line[0] == '~')
             {
-                if (line[1] == 'W')
-                {
-                    _state = LASReadingState.WellSection;
-                    return true;
-                }
-                else
-                {
-                    errorMessage = "First section line is not a Version Information Section.";
-                    return false;
-                }
+                return processSectionInitialLetter(line[1], ref errorMessage);
             }
             else if (line[0] == '#') // Comment line
             {
@@ -184,6 +204,25 @@ namespace LASSharpReader
             else
             {
                 LASField field = processLineInformationSection(line);
+                if (field.Mnemonic.Length == 0)
+                {
+                    errorMessage = "LAS line mnemonic is empty.";
+                    return false;
+                }
+                else
+                {
+                    if (field.Mnemonic.Equals("VERS"))
+                    {
+                        if (!field.Data.Equals("2.0"))
+                        {
+                            errorMessage = "LAS version is not 2.0. It is " + field.Data + ".";
+                            return false;
+                        }
+                    }
+                    //@TODO: Verify if it will be necessary to check for WRAP
+
+                    _versionInformation.Add(field);
+                }
                 return true;
             }
         }
@@ -195,67 +234,168 @@ namespace LASSharpReader
         /// <returns>The LASField represented by the line</returns>
         private LASField processLineInformationSection(string line)
         {
-            /// http://stackoverflow.com/questions/25521539/regex-for-las-entries
-            /// https://regex101.com/r/nK5qM4/1
-            string pattern = @"^([\w\s]*)\s*\.([^ ]*)\s*([^:]*)\s*:(.*)$";
-            string[] brokenLine = System.Text.RegularExpressions.Regex.Split(line, pattern);
+            string[] splitLine = System.Text.RegularExpressions.Regex.Split(line, _pattern);
 
 #if DEBUG
-            foreach( string group in brokenLine )
+            foreach( string group in splitLine )
             {
                 System.Console.Out.WriteLine(group);
             }
 #endif
 
-            return new LASField(brokenLine[0], brokenLine[1], brokenLine[2], brokenLine[3]);
+            return new LASField(splitLine[1].Trim(), splitLine[2].Trim(), splitLine[3].Trim(), splitLine[4].Trim());
         }
 
         /// <summary>
-        /// 
+        /// Process a LAS line while in the context of Well Section
         /// </summary>
-        /// <param name="line"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns></returns>
+        /// <param name="line">Line to be processed</param>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if the processing was OK</returns>
         private bool processLineWellSectionState(string line, ref string errorMessage)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                errorMessage = "Empty line.";
+                return false;
+            }
+            else if (line[0] == '~')
+            {
+                return processSectionInitialLetter(line[1], ref errorMessage);
+            }
+            else if (line[0] == '#') // Comment line
+            {
+                return true;
+            }
+            else
+            {
+                LASField field = processLineInformationSection(line);
+                if (field.Mnemonic.Length == 0)
+                {
+                    errorMessage = "LAS line mnemonic is empty.";
+                    return false;
+                }
+                else
+                {
+                    if (field.Mnemonic.Equals("VERS"))
+                    {
+                        if (!field.Data.Equals("2.0"))
+                        {
+                            errorMessage = "LAS version is not 2.0.";
+                            return false;
+                        }
+                    }
+
+                    _versionInformation.Add(field);
+                }
+                return true;
+            }
         }
-        
+
         /// <summary>
-        /// 
+        /// Process a LAS line while in the context of Curve Section
         /// </summary>
-        /// <param name="line"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns></returns>
+        /// <param name="line">Line to be processed</param>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if the processing was OK</returns>
         private bool processLineCurveSectionState(string line, ref string errorMessage)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                errorMessage = "Empty line.";
+                return false;
+            }
+            else if (line[0] == '~')
+            {
+                return processSectionInitialLetter(line[1], ref errorMessage);
+            }
+            else if (line[0] == '#') // Comment line
+            {
+                return true;
+            }
+            else
+            {
+                LASField field = processLineInformationSection(line);
+                if (field.Mnemonic.Length == 0)
+                {
+                    errorMessage = "LAS line mnemonic is empty.";
+                    return false;
+                }
+                else
+                {
+                    _curveInformation.Add(field);
+                }
+                return true;
+            }
         }
 
         /// <summary>
-        /// 
+        /// Process a LAS line while in the context of Parameters Section
         /// </summary>
-        /// <param name="line"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns></returns>
+        /// <param name="line">Line to be processed</param>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if processing was OK</returns>
         private bool processLineParameterSectionState(string line, ref string errorMessage)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                errorMessage = "Empty line.";
+                return false;
+            }
+            else if (line[0] == '~')
+            {
+                return processSectionInitialLetter(line[1], ref errorMessage);
+            }
+            else if (line[0] == '#') // Comment line
+            {
+                return true;
+            }
+            else
+            {
+                LASField field = processLineInformationSection(line);
+                if (field.Mnemonic.Length == 0)
+                {
+                    errorMessage = "LAS line mnemonic is empty.";
+                    return false;
+                }
+                else
+                {
+                    _parameterInformation.Add(field);
+                }
+                return true;
+            }
         }
 
         /// <summary>
-        /// 
+        /// Process a LAS line while in the context of Other Section
         /// </summary>
-        /// <param name="line"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns></returns>
+        /// <param name="line">Line to be processed</param>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if the processing was OK</returns>
         private bool processLineOtherSectionState(string line, ref string errorMessage)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                errorMessage = "Empty line.";
+                return false;
+            }
+            else if (line[0] == '~')
+            {
+                return processSectionInitialLetter(line[1], ref errorMessage);
+            }
+            else if (line[0] == '#') // Comment line
+            {
+                return true;
+            }
+            else
+            {
+                _otherInformation += line.Trim() + " ";
+                return true;
+            }
         }
 
         /// <summary>
-        /// 
+        /// Process a LAS line while in the context of ASCII Section
         /// </summary>
         /// <param name="line"></param>
         /// <param name="errorMessage"></param>
@@ -263,6 +403,109 @@ namespace LASSharpReader
         private bool processLineASCIISectionState(string line, ref string errorMessage)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Checks if the initial letter of a section line is valid in the current state.
+        /// </summary>
+        /// <param name="initial">Initial section character. Valid chars are V, W, C, P, O, A</param>
+        /// <param name="errorMessage"></param>
+        /// <returns>True if the initial section letter was valid</returns>
+        private bool processSectionInitialLetter(char initial, ref string errorMessage)
+        {
+            switch (initial)
+            {
+                case 'A':
+                    {
+                        if (checkAsciiReady())
+                        {
+                            _state = LASReadingState.ASCIISection;
+                            _foundAsciiSection = true;
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "ASCII section can't be defined at the current line. Check the LAS 2.0 specification.";
+                            return false;
+                        }
+                    }
+                case 'C':
+                    if (!_foundCurveSection)
+                    {
+                        _state = LASReadingState.CurveSection;
+                        _foundCurveSection = true;
+                        return true;
+                    }
+                    else
+                    {
+                        errorMessage = "A curve section was already defined.";
+                        return false;
+                    }
+                case 'O':
+                    if (!_foundOtherSection)
+                    {
+                        _state = LASReadingState.OtherSection;
+                        _foundOtherSection = true;
+                        return true;
+                    }
+                    else
+                    {
+                        errorMessage = "An other section was already defined.";
+                        return false;
+                    }
+                case 'P':
+                    if (!_foundParametersSection)
+                    {
+                        _state = LASReadingState.ParametersSection;
+                        _foundParametersSection = true;
+                        return true;
+                    }
+                    else
+                    {
+                        errorMessage = "A parameter section was already defined.";
+                        return false;
+                    }
+                case 'V':
+                    {
+                        if (!_foundVersionSection)
+                        {
+                            _state = LASReadingState.VersionSection;
+                            _foundVersionSection = true;
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "A version section was already defined.";
+                            return false;
+                        }
+                    }
+                case 'W':
+                    {
+                        if (!_foundWellSection)
+                        {
+                            _state = LASReadingState.WellSection;
+                            _foundWellSection = true;
+                            return true;
+                        }
+                        else
+                        {
+                            errorMessage = "An well section was already defined.";
+                            return false;
+                        }
+                    }
+                default:
+                    errorMessage = "Line identifier unknown.";
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks if can read ASCII section. According to LAS 2.0 specification, it must be the last section.
+        /// </summary>
+        /// <returns>True if can already read the ASCII section</returns>
+        private bool checkAsciiReady()
+        {
+            return (!_foundAsciiSection && _foundVersionSection && _foundWellSection && _foundCurveSection);
         }
 
         /// <summary>
@@ -295,7 +538,9 @@ namespace LASSharpReader
         /// <summary>
         /// Information line separators in a LAS File
         /// </summary>
-        private static char[] separators = { '.', ' ', ':' };
+        /// <see cref="http://stackoverflow.com/questions/25521539/regex-for-las-entries"/>
+        /// <see cref="https://regex101.com/r/nK5qM4/1"/>
+        private static string _pattern = @"^([\w\s]*)\s*\.([^ ])\s*([^:]*)\s*:(.*)$";
 
         /// <summary>
         /// State of the reading operation
@@ -313,24 +558,54 @@ namespace LASSharpReader
         private double _nullValue;
 
         /// <summary>
+        /// 
+        /// </summary>
+        private bool _foundVersionSection;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _foundWellSection;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _foundParametersSection;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _foundCurveSection;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _foundOtherSection;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _foundAsciiSection;
+
+        /// <summary>
         /// Version information section
         /// </summary>
-        private LASField[] _versionInformation;
+        private List<LASField> _versionInformation;
 
         /// <summary>
         /// Curve information section
         /// </summary>
-        private LASField[] _curveInformation;
+        private List<LASField> _curveInformation;
 
         /// <summary>
         /// Well information section
         /// </summary>
-        private LASField[] _wellInformation;
+        private List<LASField> _wellInformation;
 
         /// <summary>
         /// Parameter information section
         /// </summary>
-        private LASField[] _parameterInformation;
+        private List<LASField> _parameterInformation;
 
         /// <summary>
         /// Other information section
@@ -340,7 +615,7 @@ namespace LASSharpReader
         /// <summary>
         /// ASCII section values
         /// </summary>
-        private double[] _asciiValues;
+        private List<double> _asciiValues;
     }
 }
 
