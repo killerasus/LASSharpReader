@@ -26,6 +26,11 @@ MRT.DEGC	67.0		: BOTTOM HOLE TEMPERATURE
 GDEPT.M		3456.5 		: GAUGE DEPTH
 DFD.KG/M3	1000.0 		: MUD WEIGHT
 #
+~OTHER SECTION
+This is just a test string to see if I can read,
+other section
+ properly.
+#
 ~A
 0.0000	0.2125	16564.1445
 0.3000	0.2125	16564.1445
