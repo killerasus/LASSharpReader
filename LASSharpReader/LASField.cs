@@ -17,17 +17,33 @@ namespace LASSharpReader
         private string _comment;
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="mnemonic">Mnemonic string</param>
+        /// <param name="unit">Unit string</param>
+        /// <param name="data">Data string</param>
+        /// <param name="comment">Comment string</param>
+        public LASField(string mnemonic, string unit, string data, string comment) : this()
+        {
+            _mnemonic = mnemonic;
+            _unit = unit;
+            _data = data;
+            _comment = comment;
+        }
+
+        /// <summary>
         /// Mnemonic column
         /// </summary>
         public string Mnemonic
         {
             get
             {
-                throw new System.NotImplementedException();
+                return _mnemonic;
             }
 
             set
             {
+                _mnemonic = value;
             }
         }
 
@@ -38,11 +54,12 @@ namespace LASSharpReader
         {
             get
             {
-                throw new System.NotImplementedException();
+                return _unit;
             }
 
             set
             {
+                _unit = value;
             }
         }
 
@@ -53,11 +70,12 @@ namespace LASSharpReader
         {
             get
             {
-                throw new System.NotImplementedException();
+                return _data;
             }
 
             set
             {
+                _data = value;
             }
         }
 
@@ -68,11 +86,12 @@ namespace LASSharpReader
         {
             get
             {
-                throw new System.NotImplementedException();
+                return _comment;
             }
 
             set
             {
+                _comment = value;
             }
         }
     }

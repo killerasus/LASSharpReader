@@ -2,15 +2,22 @@
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="LASSharpReader.LASFileReader">
     <Position X="0.5" Y="0.5" Width="2" />
+    <NestedTypes>
+      <Enum Name="LASSharpReader.LASFileReader.LASReadingState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>LASFileReader.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAwQAAAAAACAAgAAAAAAAACAAJAAIBAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAwQAAAAAACCAgAAAAAAAQCAAJAAIBAAAA=</HashCode>
       <FileName>LASFileReader.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="LASSharpReader.LASField">
     <Position X="2.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>ABAAAAAEEAAAAAAAAAAAAAAAAAAAIAAAAAAiAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAEFAAAAAAAIAAAAAAAAAAAIBAAAAACAAAAAAI=</HashCode>
       <FileName>LASField.cs</FileName>
     </TypeIdentifier>
   </Struct>
