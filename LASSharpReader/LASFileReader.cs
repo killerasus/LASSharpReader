@@ -33,6 +33,7 @@ namespace LASSharpReader
             _nullValue = -999.25;
             _wrap = false;
             _filePath = "";
+            _versionInformation.Clear();
             _wellInformation.Clear();
             _curveInformation.Clear();
             _parameterInformation.Clear();
@@ -42,6 +43,7 @@ namespace LASSharpReader
             _foundWellSection = false;
             _foundCurveSection = false;
             _foundParametersSection = false;
+            _foundOtherSection = false;
             _foundAsciiSection = false;
         }
         
@@ -70,7 +72,7 @@ namespace LASSharpReader
                 while ((line = lasFile.ReadLine()) != null)
                 {
                     lines++;
-                    if (_state == LASReadingState.End && !processLine(line, ref lineProcessingErrorMessage))
+                    if (_state != LASReadingState.End && !processLine(line, ref lineProcessingErrorMessage))
                     {
                         errorMessage = string.Format("Line[{0}]: {1}", lines, lineProcessingErrorMessage);
 #if DEBUG
@@ -198,7 +200,14 @@ namespace LASSharpReader
             }
             else if (line[0] == '~')
             {
-                return processSectionInitialLetter(line[1], ref errorMessage);
+                if (validateVersionSection(ref errorMessage))
+                {
+                    return processSectionInitialLetter(line[1], ref errorMessage);
+                }
+                else
+                {
+                    return false;
+                }
             }
             else if (line[0] == '#') // Comment line
             {
@@ -214,26 +223,69 @@ namespace LASSharpReader
                 }
                 else
                 {
-                    if (field.Mnemonic.Equals("VERS"))
-                    {
-                        if (!field.Data.Equals("2.0"))
-                        {
-                            errorMessage = "LAS version is not 2.0. It is " + field.Data + ".";
-                            return false;
-                        }
-                    }
-                    else if (field.Mnemonic.Equals("WRAP"))
-                    {
-                        if (field.Data.Equals("YES"))
-                        {
-                            _wrap = true;
-                        }
-                    }
-
                     _versionInformation.Add(field);
                 }
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Validates Version Section
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if version section was valid</returns>
+        private bool validateVersionSection(ref string errorMessage)
+        {
+            bool hasVers = false;
+            bool hasWrap = false;
+
+            foreach (LASField field in _versionInformation)
+            {
+                if (field.Mnemonic.Equals("VERS"))
+                {
+                    if (!field.Data.Equals("2.0"))
+                    {
+                        errorMessage = "LAS version is not 2.0. It is " + field.Data + ".";
+                        return false;
+                    }
+                    else
+                    {
+                        hasVers = true;
+                    }
+                }
+                else if (field.Mnemonic.Equals("WRAP"))
+                {
+                    hasWrap = true;
+
+                    if (field.Data.Equals("YES"))
+                    {
+                        _wrap = true;
+                    }
+                    else if (field.Data.Equals("NO"))
+                    {
+                        _wrap = false;
+                    }
+                    else
+                    {
+                        errorMessage = "WRAP value not YES or NO.";
+                        return false;
+                    }
+                }
+            }
+            
+            if (!hasVers)
+            {
+                errorMessage = "VERS mnemonic not found in Version Section.";
+                return false;
+            }
+
+            if (!hasWrap)
+            {
+                errorMessage = "WRAP mnemonic not found in Version Section.";
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -404,41 +456,22 @@ namespace LASSharpReader
         {
             if (line.Count() > 0)
             {
+                if (line[0] == '~')
+                {
+                    errorMessage = "ASCII section should be the last section";
+                    return false;
+                }
+
                 char[] separators = { ' ', '\t' };
                 int count = _curveInformation.Count;
-                string[] splitLine = line.Split(separators, count);
+                string[] splitLine = line.Split(separators);
+                int readParameters = splitLine.Count<string>();
 
                 if (!_wrap)
                 {
-                    int readParameters = splitLine.Count<string>();
                     if (readParameters == count)
                     {
-                        try
-                        {
-                            System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
-
-                            foreach (string data in splitLine)
-                            {
-                                double parsed = double.Parse(data, format);
-                                _asciiValues.Add(parsed);
-                            }
-
-                            return true;
-                        }
-                        catch (ArgumentNullException exception)
-                        {
-                            errorMessage = exception.Message;
-                        }
-                        catch (FormatException exception)
-                        {
-                            errorMessage = exception.Message;
-                        }
-                        catch (OverflowException exception)
-                        {
-                            errorMessage = exception.Message;
-                        }
-
-                        return false;
+                        return processAsciiData(ref errorMessage, splitLine);
                     }
                     else
                     {
@@ -448,7 +481,34 @@ namespace LASSharpReader
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    //if (_domainReading)
+                    //{
+                    //    if (readParameters == 1)
+                    //    {
+                    //        _domainReading = !_domainReading;
+                            return processAsciiData(ref errorMessage, splitLine);
+                    //    }
+                    //    else
+                    //    {
+                    //        errorMessage = "Wrap in use, but domain line has more than one value.";
+                    //        return false;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    int expectedDataParameters = Math.Min(count - 1, 1);
+
+                    //    if (readParameters == expectedDataParameters)
+                    //    {
+                    //        _domainReading = !_domainReading;
+                    //        return processAsciiData(ref errorMessage, splitLine);
+                    //    }
+                    //    else
+                    //    {
+                    //        errorMessage = string.Format("Wrap in use, but data line has less ({0}) values than expected ({1}).", readParameters, expectedDataParameters);
+                    //        return false;
+                    //    }
+                    //}
                 }
             }
             else
@@ -559,6 +619,42 @@ namespace LASSharpReader
         private bool checkAsciiReady()
         {
             return (!_foundAsciiSection && _foundVersionSection && _foundWellSection && _foundCurveSection);
+        }
+
+        /// <summary>
+        /// Process a variable set of string data parameters
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <param name="data">Variadic string parameters</param>
+        /// <returns>True if data processing was OK</returns>
+        private bool processAsciiData(ref string errorMessage, params string[] data)
+        {
+            try
+            {
+                System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+
+                foreach (string datum in data)
+                {
+                    double parsed = double.Parse(datum, format);
+                    _asciiValues.Add(parsed);
+                }
+
+                return true;
+            }
+            catch (ArgumentNullException exception)
+            {
+                errorMessage = exception.Message;
+            }
+            catch (FormatException exception)
+            {
+                errorMessage = exception.Message;
+            }
+            catch (OverflowException exception)
+            {
+                errorMessage = exception.Message;
+            }
+
+            return false;
         }
 
         /// <summary>
