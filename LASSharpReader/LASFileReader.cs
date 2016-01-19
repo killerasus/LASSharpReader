@@ -30,7 +30,8 @@ namespace LASSharpReader
         private void Reset()
         {
             _state = LASReadingState.Initial;
-            _nullValue = -9999.25;
+            _nullValue = -999.25;
+            _wrap = false;
             _filePath = "";
             _wellInformation.Clear();
             _curveInformation.Clear();
@@ -52,7 +53,9 @@ namespace LASSharpReader
         /// <returns></returns>
         public bool ReadFile( string LASFilePath, ref string errorMessage  )
         {
-            bool valid = false;
+            Reset();
+
+            bool valid = true;
             _filePath = LASFilePath;
             
             try
@@ -67,7 +70,7 @@ namespace LASSharpReader
                 while ((line = lasFile.ReadLine()) != null)
                 {
                     lines++;
-                    if (!processLine(line, ref lineProcessingErrorMessage))
+                    if (_state == LASReadingState.End && !processLine(line, ref lineProcessingErrorMessage))
                     {
                         errorMessage = string.Format("Line[{0}]: {1}", lines, lineProcessingErrorMessage);
 #if DEBUG
@@ -219,7 +222,13 @@ namespace LASSharpReader
                             return false;
                         }
                     }
-                    //@TODO: Verify if it will be necessary to check for WRAP
+                    else if (field.Mnemonic.Equals("WRAP"))
+                    {
+                        if (field.Data.Equals("YES"))
+                        {
+                            _wrap = true;
+                        }
+                    }
 
                     _versionInformation.Add(field);
                 }
@@ -277,15 +286,6 @@ namespace LASSharpReader
                 }
                 else
                 {
-                    if (field.Mnemonic.Equals("VERS"))
-                    {
-                        if (!field.Data.Equals("2.0"))
-                        {
-                            errorMessage = "LAS version is not 2.0.";
-                            return false;
-                        }
-                    }
-
                     _versionInformation.Add(field);
                 }
                 return true;
@@ -402,7 +402,60 @@ namespace LASSharpReader
         /// <returns></returns>
         private bool processLineASCIISectionState(string line, ref string errorMessage)
         {
-            throw new NotImplementedException();
+            if (line.Count() > 0)
+            {
+                char[] separators = { ' ', '\t' };
+                int count = _curveInformation.Count;
+                string[] splitLine = line.Split(separators, count);
+
+                if (!_wrap)
+                {
+                    int readParameters = splitLine.Count<string>();
+                    if (readParameters == count)
+                    {
+                        try
+                        {
+                            System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+
+                            foreach (string data in splitLine)
+                            {
+                                double parsed = double.Parse(data, format);
+                                _asciiValues.Add(parsed);
+                            }
+
+                            return true;
+                        }
+                        catch (ArgumentNullException exception)
+                        {
+                            errorMessage = exception.Message;
+                        }
+                        catch (FormatException exception)
+                        {
+                            errorMessage = exception.Message;
+                        }
+                        catch (OverflowException exception)
+                        {
+                            errorMessage = exception.Message;
+                        }
+
+                        return false;
+                    }
+                    else
+                    {
+                        errorMessage = string.Format("Wrong number of parameters. Expected {0}, read {1}.", count, readParameters);
+                        return false;
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            else
+            {
+                _state = LASReadingState.End;
+                return true;
+            }
         }
 
         /// <summary>
@@ -558,6 +611,11 @@ namespace LASSharpReader
         private double _nullValue;
 
         /// <summary>
+        /// If wrapping is used in ascii section
+        /// </summary>
+        private bool _wrap;
+
+        /// <summary>
         /// 
         /// </summary>
         private bool _foundVersionSection;
@@ -618,4 +676,3 @@ namespace LASSharpReader
         private List<double> _asciiValues;
     }
 }
-
