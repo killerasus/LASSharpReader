@@ -31,6 +31,7 @@ namespace LASSharpReader
         {
             _state = LASReadingState.Initial;
             _nullValue = -999.25;
+            _stepValue = 0.0;
             _wrap = false;
             _filePath = "";
             _versionInformation.Clear();
@@ -48,11 +49,11 @@ namespace LASSharpReader
         }
         
         /// <summary>
-        /// 
+        /// Reads and validates a LAS 2.0 file
         /// </summary>
-        /// <param name="LASFilePath"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns></returns>
+        /// <param name="LASFilePath">Path to the LAS file</param>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if LAS file was correctly read</returns>
         public bool ReadFile( string LASFilePath, ref string errorMessage  )
         {
             Reset();
@@ -322,7 +323,14 @@ namespace LASSharpReader
             }
             else if (line[0] == '~')
             {
-                return processSectionInitialLetter(line[1], ref errorMessage);
+                if (validateWellSection(ref errorMessage))
+                {
+                    return processSectionInitialLetter(line[1], ref errorMessage);
+                }
+                else
+                {
+                    return false;
+                }
             }
             else if (line[0] == '#') // Comment line
             {
@@ -338,10 +346,403 @@ namespace LASSharpReader
                 }
                 else
                 {
-                    _versionInformation.Add(field);
+                    _wellInformation.Add(field);
                 }
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Validates Well Section
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if valid</returns>
+        private bool validateWellSection(ref string errorMessage)
+        {
+            bool hasStart = false;
+            bool hasStop = false;
+            bool hasStep = false;
+            bool hasNull = false;
+            bool hasComp = false;
+            bool hasWell = false;
+            bool hasField = false;
+            bool hasLocation = false;
+            bool hasProvince = false;
+            bool hasCounty = false;
+            bool hasState = false;
+            bool hasCountry = false;
+            bool hasService = false;
+            bool hasDate = false;
+            bool hasUWI = false;
+            bool hasAPI = false;
+
+            string startUnit = "";
+            string stopUnit = "";
+            string stepUnit = "";
+
+            // Validates STRT, STOP and STEP fields
+            foreach( LASField field in _wellInformation )
+            {
+                if (field.Mnemonic.Equals("STRT"))
+                {
+                    hasStart = true;
+                    if (!string.IsNullOrWhiteSpace(field.Unit))
+                    {
+                        startUnit = field.Unit;
+                        try
+                        {
+                            _startValue = double.Parse(field.Data);
+                        }
+                        catch (ArgumentNullException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                        catch (FormatException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                        catch (OverflowException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "STRT has no unit.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("STOP"))
+                {
+                    hasStop = true;
+                    if (!string.IsNullOrWhiteSpace(field.Unit))
+                    {
+                        stopUnit = field.Unit;
+                        try
+                        {
+                            _stopValue = double.Parse(field.Data);
+                        }
+                        catch (ArgumentNullException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                        catch (FormatException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                        catch (OverflowException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "STOP has no unit.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("STEP"))
+                {
+                    hasStep = true;
+                    if (!string.IsNullOrWhiteSpace(field.Unit))
+                    {
+                        stepUnit = field.Unit;
+                        try
+                        {
+                            _stepValue = double.Parse(field.Data);
+                        }
+                        catch(ArgumentNullException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                        catch(FormatException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                        catch(OverflowException exception)
+                        {
+                            errorMessage = exception.Message;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        errorMessage = "STEP has no unit.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("NULL"))
+                {
+                    hasNull = true;
+                    try
+                    {
+                        _nullValue = double.Parse(field.Data);
+                    }
+                    catch (ArgumentNullException exception)
+                    {
+                        errorMessage = exception.Message;
+                        return false;
+                    }
+                    catch (FormatException exception)
+                    {
+                        errorMessage = exception.Message;
+                        return false;
+                    }
+                    catch (OverflowException exception)
+                    {
+                        errorMessage = exception.Message;
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("COMP"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasComp = true;
+                    }
+                    else
+                    {
+                        errorMessage = "COMP data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("WELL"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasWell = true;
+                    }
+                    else
+                    {
+                        errorMessage = "WELL data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("FLD"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasField = true;
+                    }
+                    else
+                    {
+                        errorMessage = "FLD data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("LOC"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasLocation = true;
+                    }
+                    else
+                    {
+                        errorMessage = "LOC data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("PROV"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasProvince = true;
+                    }
+                    else
+                    {
+                        errorMessage = "PROV data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("CNTY"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasCounty = true;
+                    }
+                    else
+                    {
+                        errorMessage = "CNTY data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("STAT"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasState = true;
+                    }
+                    else
+                    {
+                        errorMessage = "STAT data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("CTRY"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasCountry = true;
+                    }
+                    else
+                    {
+                        errorMessage = "CTRY data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("SRVC"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasService = true;
+                    }
+                    else
+                    {
+                        errorMessage = "SRVC data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("DATE"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasDate = true;
+                    }
+                    else
+                    {
+                        errorMessage = "DATE data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("UWI"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasUWI = true;
+                    }
+                    else
+                    {
+                        errorMessage = "UWI data is empty.";
+                        return false;
+                    }
+                }
+                else if (field.Mnemonic.Equals("API"))
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Data))
+                    {
+                        hasAPI = true;
+                    }
+                    else
+                    {
+                        errorMessage = "API data is empty.";
+                        return false;
+                    }
+                }
+            }
+
+            // Validates STRT, STOP, STEP and NULL existence
+            if (!hasStart)
+            {
+                errorMessage = "STRT not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasStop)
+            {
+                errorMessage = "STOP not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasStep)
+            {
+                errorMessage = "STEP not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasNull)
+            {
+                errorMessage = "NULL not defined in Well Section";
+                return false;
+            }
+
+            // Validates STRT, STOP and STEP units
+            if (!startUnit.Equals(stopUnit) || !stopUnit.Equals(stepUnit))
+            {
+                errorMessage = "STRT, STOP and STEP must have the same unit.";
+                return false;
+            }
+
+            // Validates STRT, STOP and STEP values
+            if (_stepValue > 0 && _startValue > _stopValue)
+            {
+                errorMessage = "STRT is greater than STOP but STEP is positive.";
+                return false;
+            }
+            else if (_stepValue < 0 && _startValue < _stopValue)
+            {
+                errorMessage = "STRT is lower than STOP but STEP is negative.";
+                return false;
+            }
+
+            // Validates other mnemonics
+
+            if (!hasComp)
+            {
+                errorMessage = "COMP not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasWell)
+            {
+                errorMessage = "WELL not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasField)
+            {
+                errorMessage = "FLD not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasLocation)
+            {
+                errorMessage = "LOC not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasProvince && !hasState && !hasCounty && !hasCountry)
+            {
+                errorMessage = "PROV, STAT, CNTY or CTRY not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasService)
+            {
+                errorMessage = "SRVC not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasDate)
+            {
+                errorMessage = "DATE not defined in Well Section.";
+                return false;
+            }
+
+            if (!hasUWI && !hasAPI)
+            {
+                errorMessage = "UWI or API not defined in Well Section.";
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -705,6 +1106,26 @@ namespace LASSharpReader
         /// Well null value
         /// </summary>
         private double _nullValue;
+
+        /// <summary>
+        /// Well start value
+        /// </summary>
+        private double _startValue;
+
+        /// <summary>
+        /// Well stop value
+        /// </summary>
+        private double _stopValue;
+
+        /// <summary>
+        /// Well step value
+        /// </summary>
+        private double _stepValue;
+
+        /// <summary>
+        /// Domain column unit, as defined in START, STOP, STEP and domain curve
+        /// </summary>
+        private string _domainUnit;
 
         /// <summary>
         /// If wrapping is used in ascii section
