@@ -679,6 +679,10 @@ namespace LASSharpReader
                 errorMessage = "STRT, STOP and STEP must have the same unit.";
                 return false;
             }
+            else
+            {
+                _domainUnit = startUnit;
+            }
 
             // Validates STRT, STOP and STEP values
             if (_stepValue > 0 && _startValue > _stopValue)
@@ -760,7 +764,14 @@ namespace LASSharpReader
             }
             else if (line[0] == '~')
             {
-                return processSectionInitialLetter(line[1], ref errorMessage);
+                if (validateCurveSection(ref errorMessage))
+                {
+                    return processSectionInitialLetter(line[1], ref errorMessage);
+                }
+                else
+                {
+                    return false;
+                }
             }
             else if (line[0] == '#') // Comment line
             {
@@ -779,6 +790,84 @@ namespace LASSharpReader
                     _curveInformation.Add(field);
                 }
                 return true;
+            }
+        }
+
+        /// <summary>
+        /// Validates Curve Section
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <returns>True if Curve Section is valid</returns>
+        private bool validateCurveSection(ref string errorMessage)
+        {
+            if (_curveInformation.Count == 0)
+            {
+                errorMessage = "Curve Section must not be empty.";
+                return false;
+            }
+
+            LASField field = _curveInformation[0];
+
+            // Validates domain curve
+            if (!field.Mnemonic.Equals("DEPT") && !field.Mnemonic.Equals("DEPTH") && 
+                !field.Mnemonic.Equals("TIME"))
+            {
+                errorMessage = "First curve must be DEPT, DEPTH or TIME.";
+                return false;
+            }
+
+            // Validates domain unit
+            switch(field.Mnemonic)
+            {
+                case "DEPT":
+                case "DEPTH":
+                    switch (field.Unit)
+                    {
+                        case "M":
+                        case "F":
+                        case "FT":
+                            break;
+                        default:
+                            errorMessage = "DEPT or DEPTH only accepts M, F or FT as unit.";
+                            return false;
+                    }
+                    break;
+                default: //TIME
+                    // Checks if unit is empty or has : / \ - (meaning it is in a non-floating point convertible format)
+                    if (string.IsNullOrWhiteSpace(field.Unit) || !field.Unit.FirstOrDefault(isInvalidDateChar).Equals('\0'))
+                    {
+                        errorMessage = "TIME unit must be convertible to a floating point representation of time.";
+                        return false;
+                    }
+                    break;
+            }
+
+            // Validates domain curve unit compared to START, STOP and STEP unit
+            if (!field.Unit.Equals(_domainUnit))
+            {
+                errorMessage = string.Format("Unit {0} is different from START, STOP and STEP unit {1}", field.Unit, _domainUnit);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Tests if a character is in invalid time unit format expected
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
+        private bool isInvalidDateChar(char arg)
+        {
+            switch(arg)
+            {
+                case '\\':
+                case '/':
+                case ':':
+                case '-':
+                    return true;
+                default:
+                    return false;
             }
         }
 
