@@ -1175,6 +1175,17 @@ namespace LASSharpReader
         }
 
         /// <summary>
+        /// Returns the version information section list of LASField
+        /// </summary>
+        public List<LASField> VersionInformation
+        {
+            get
+            {
+                return _versionInformation;
+            }
+        }
+
+        /// <summary>
         /// Information line separators in a LAS File
         /// </summary>
         /// <see cref="Modified from http://stackoverflow.com/questions/25521539/regex-for-las-entries"/>
