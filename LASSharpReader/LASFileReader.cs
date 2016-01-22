@@ -1222,32 +1222,32 @@ namespace LASSharpReader
         private bool _wrap;
 
         /// <summary>
-        /// 
+        /// If a version section was found
         /// </summary>
         private bool _foundVersionSection;
 
         /// <summary>
-        /// 
+        /// If a well section was found
         /// </summary>
         private bool _foundWellSection;
 
         /// <summary>
-        /// 
+        /// If a parameters section was found
         /// </summary>
         private bool _foundParametersSection;
 
         /// <summary>
-        /// 
+        /// If a curve section was found
         /// </summary>
         private bool _foundCurveSection;
 
         /// <summary>
-        /// 
+        /// If an other section was found
         /// </summary>
         private bool _foundOtherSection;
 
         /// <summary>
-        /// 
+        /// If an ascii section was found
         /// </summary>
         private bool _foundAsciiSection;
 
