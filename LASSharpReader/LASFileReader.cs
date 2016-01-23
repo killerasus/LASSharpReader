@@ -1175,13 +1175,57 @@ namespace LASSharpReader
         }
 
         /// <summary>
-        /// Returns the version information section list of LASField
+        /// Version information section
         /// </summary>
         public List<LASField> VersionInformation
         {
             get
             {
                 return _versionInformation;
+            }
+        }
+
+        /// <summary>
+        /// Well information section
+        /// </summary>
+        public List<LASField> WellInformation
+        {
+            get
+            {
+                return _wellInformation;
+            }
+        }
+
+        /// <summary>
+        /// Curve information section
+        /// </summary>
+        public List<LASField> CurveInformation
+        {
+            get
+            {
+                return _curveInformation;
+            }
+        }
+
+        /// <summary>
+        /// Parameters information section
+        /// </summary>
+        public List<LASField> ParametersInformation
+        {
+            get
+            {
+                return _parameterInformation;
+            }
+        }
+
+        /// <summary>
+        /// Other information section
+        /// </summary>
+        public string OtherInformation
+        {
+            get
+            {
+                return _otherInformation;
             }
         }
 
