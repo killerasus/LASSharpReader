@@ -1230,6 +1230,17 @@ namespace LASSharpReader
         }
 
         /// <summary>
+        /// ASCII data section
+        /// </summary>
+        public List<double> ASCIIData
+        {
+            get
+            {
+                return _asciiValues;
+            }
+        }
+
+        /// <summary>
         /// Information line separators in a LAS File
         /// </summary>
         /// <see cref="Modified from http://stackoverflow.com/questions/25521539/regex-for-las-entries"/>
