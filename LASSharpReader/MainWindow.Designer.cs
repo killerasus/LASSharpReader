@@ -62,11 +62,16 @@
             this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.parametersInformationSectionLabel = new System.Windows.Forms.Label();
+            this.otherTextBox = new System.Windows.Forms.TextBox();
+            this.otherInformationLabel = new System.Windows.Forms.Label();
+            this.asciiDataLabel = new System.Windows.Forms.Label();
+            this.ASCIIDataGridView = new System.Windows.Forms.DataGridView();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.versionDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.wellDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.curveDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.parametersDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ASCIIDataGridView)).BeginInit();
             this.SuspendLayout();
             // 
             // openLASDialog
@@ -337,12 +342,56 @@
             this.parametersInformationSectionLabel.TabIndex = 10;
             this.parametersInformationSectionLabel.Text = "Parameters Information Section:";
             // 
+            // otherTextBox
+            // 
+            this.otherTextBox.Location = new System.Drawing.Point(12, 609);
+            this.otherTextBox.Multiline = true;
+            this.otherTextBox.Name = "otherTextBox";
+            this.otherTextBox.Size = new System.Drawing.Size(575, 83);
+            this.otherTextBox.TabIndex = 11;
+            // 
+            // otherInformationLabel
+            // 
+            this.otherInformationLabel.AutoSize = true;
+            this.otherInformationLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.otherInformationLabel.Location = new System.Drawing.Point(12, 593);
+            this.otherInformationLabel.Name = "otherInformationLabel";
+            this.otherInformationLabel.Size = new System.Drawing.Size(156, 13);
+            this.otherInformationLabel.TabIndex = 12;
+            this.otherInformationLabel.Text = "Other Information Section:";
+            // 
+            // asciiDataLabel
+            // 
+            this.asciiDataLabel.AutoSize = true;
+            this.asciiDataLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.asciiDataLabel.Location = new System.Drawing.Point(12, 695);
+            this.asciiDataLabel.Name = "asciiDataLabel";
+            this.asciiDataLabel.Size = new System.Drawing.Size(121, 13);
+            this.asciiDataLabel.TabIndex = 13;
+            this.asciiDataLabel.Text = "ASCII Data Section:";
+            // 
+            // ASCIIDataGridView
+            // 
+            this.ASCIIDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.ASCIIDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.ASCIIDataGridView.Enabled = false;
+            this.ASCIIDataGridView.Location = new System.Drawing.Point(12, 711);
+            this.ASCIIDataGridView.Name = "ASCIIDataGridView";
+            this.ASCIIDataGridView.RowHeadersVisible = false;
+            this.ASCIIDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            this.ASCIIDataGridView.Size = new System.Drawing.Size(574, 119);
+            this.ASCIIDataGridView.TabIndex = 14;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(612, 350);
+            this.Controls.Add(this.ASCIIDataGridView);
+            this.Controls.Add(this.asciiDataLabel);
+            this.Controls.Add(this.otherInformationLabel);
+            this.Controls.Add(this.otherTextBox);
             this.Controls.Add(this.parametersInformationSectionLabel);
             this.Controls.Add(this.parametersDataGridView);
             this.Controls.Add(this.curveDataGridView);
@@ -362,6 +411,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.wellDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.curveDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.parametersDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ASCIIDataGridView)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -402,6 +452,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
         private System.Windows.Forms.Label parametersInformationSectionLabel;
+        private System.Windows.Forms.TextBox otherTextBox;
+        private System.Windows.Forms.Label otherInformationLabel;
+        private System.Windows.Forms.Label asciiDataLabel;
+        private System.Windows.Forms.DataGridView ASCIIDataGridView;
     }
 }
 

@@ -17,7 +17,6 @@ namespace LASSharpReader
         private BindingSource wellSource;
         private BindingSource curveSource;
         private BindingSource parametersSource;
-        private BindingSource asciiSource;
 
         public MainWindow()
         {
@@ -45,17 +44,14 @@ namespace LASSharpReader
             {
                 string filePath = openLASDialog.FileName;
                 string errorMessage = "";
+
+                resetInterface();
+
                 bool valid = lasReader.ReadFile(filePath, ref errorMessage);
 
                 if(!valid)
                 {
-                    MessageBox.Show( "Error loading file: " + filePath + '\n' + errorMessage, "LASSharpReader");
-                    fileLabel.Text = "Loaded file: No file loaded.";
-                    loadedFileLabelTooltip.SetToolTip(fileLabel, filePath);
-
-                    versionDataGridView.Enabled = false;
-                    wellDataGridView.Enabled = false;
-                    curveDataGridView.Enabled = false;
+                    MessageBox.Show("Error loading file: " + filePath + '\n' + errorMessage, "LASSharpReader");
                 }
                 else
                 {
@@ -66,8 +62,30 @@ namespace LASSharpReader
                     populateWellDataGridView();
                     populateCurveDataGridView();
                     populateParametersDataGridView();
+                    populateOtherTextBox();
+                    populateASCIIDataGridView();
                 }
             }
+        }
+
+        private void resetInterface()
+        {
+            fileLabel.Text = "Loaded file: No file loaded.";
+            loadedFileLabelTooltip.SetToolTip(fileLabel, "No file loaded.");
+
+            versionDataGridView.DataSource = null;
+            versionDataGridView.Enabled = false;
+            wellDataGridView.DataSource = null;
+            wellDataGridView.Enabled = false;
+            curveDataGridView.DataSource = null;
+            curveDataGridView.Enabled = false;
+            parametersDataGridView.DataSource = null;
+            parametersDataGridView.Enabled = false;
+
+            otherTextBox.Text = "";
+
+            ASCIIDataGridView.DataSource = null;
+            ASCIIDataGridView.Enabled = false;
         }
 
         /// <summary>
@@ -132,6 +150,47 @@ namespace LASSharpReader
 
             parametersDataGridView.Enabled = true;
             parametersDataGridView.DataSource = parametersSource;
+        }
+
+        /// <summary>
+        /// Populates the Other Information Section
+        /// </summary>
+        private void populateOtherTextBox()
+        {
+            otherTextBox.Text = lasReader.OtherInformation;
+        }
+
+        /// <summary>
+        /// Populates the ASCII Data Grid View
+        /// </summary>
+        private void populateASCIIDataGridView()
+        {
+            DataTable table = new DataTable("ASCII Data");
+
+            // Builds DataTable columns
+            foreach(LASField field in lasReader.CurveInformation)
+            {
+                table.Columns.Add(field.Mnemonic, typeof(double));
+            }
+
+            int curves = lasReader.CurveInformation.Count;
+            int entries = lasReader.ASCIIData.Count;
+
+            // Builds the DataTable rows
+            for (int i = 0; i < lasReader.ASCIIData.Count; i = i + curves)
+            {
+                DataRow row = table.NewRow();
+
+                for (int j = 0; j < curves; j++)
+                {
+                    row[j] = lasReader.ASCIIData[i + j];
+                }
+
+                table.Rows.Add(row);
+            }
+
+            ASCIIDataGridView.Enabled = true;
+            ASCIIDataGridView.DataSource = table;
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
