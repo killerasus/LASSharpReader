@@ -155,6 +155,7 @@
             this.versionDataGridView.Enabled = false;
             this.versionDataGridView.Location = new System.Drawing.Point(12, 57);
             this.versionDataGridView.Name = "versionDataGridView";
+            this.versionDataGridView.RowHeadersVisible = false;
             this.versionDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.versionDataGridView.Size = new System.Drawing.Size(574, 119);
             this.versionDataGridView.TabIndex = 4;
@@ -205,6 +206,7 @@
             this.wellDataGridView.Enabled = false;
             this.wellDataGridView.Location = new System.Drawing.Point(12, 195);
             this.wellDataGridView.Name = "wellDataGridView";
+            this.wellDataGridView.RowHeadersVisible = false;
             this.wellDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.wellDataGridView.Size = new System.Drawing.Size(574, 119);
             this.wellDataGridView.TabIndex = 6;
@@ -255,6 +257,7 @@
             this.curveDataGridView.Enabled = false;
             this.curveDataGridView.Location = new System.Drawing.Point(12, 333);
             this.curveDataGridView.Name = "curveDataGridView";
+            this.curveDataGridView.RowHeadersVisible = false;
             this.curveDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.curveDataGridView.Size = new System.Drawing.Size(574, 119);
             this.curveDataGridView.TabIndex = 8;
@@ -295,6 +298,7 @@
             this.parametersDataGridView.Enabled = false;
             this.parametersDataGridView.Location = new System.Drawing.Point(13, 471);
             this.parametersDataGridView.Name = "parametersDataGridView";
+            this.parametersDataGridView.RowHeadersVisible = false;
             this.parametersDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             this.parametersDataGridView.Size = new System.Drawing.Size(574, 119);
             this.parametersDataGridView.TabIndex = 9;
