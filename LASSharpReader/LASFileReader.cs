@@ -391,7 +391,8 @@ namespace LASSharpReader
                         startUnit = field.Unit;
                         try
                         {
-                            _startValue = double.Parse(field.Data);
+                            System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+                            _startValue = double.Parse(field.Data, format);
                         }
                         catch (ArgumentNullException exception)
                         {
@@ -423,7 +424,8 @@ namespace LASSharpReader
                         stopUnit = field.Unit;
                         try
                         {
-                            _stopValue = double.Parse(field.Data);
+                            System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+                            _stopValue = double.Parse(field.Data, format);
                         }
                         catch (ArgumentNullException exception)
                         {
@@ -455,7 +457,8 @@ namespace LASSharpReader
                         stepUnit = field.Unit;
                         try
                         {
-                            _stepValue = double.Parse(field.Data);
+                            System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+                            _stepValue = double.Parse(field.Data, format);
                         }
                         catch(ArgumentNullException exception)
                         {
@@ -484,7 +487,8 @@ namespace LASSharpReader
                     hasNull = true;
                     try
                     {
-                        _nullValue = double.Parse(field.Data);
+                        System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+                        _nullValue = double.Parse(field.Data, format);
                     }
                     catch (ArgumentNullException exception)
                     {
@@ -1122,10 +1126,29 @@ namespace LASSharpReader
             try
             {
                 System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+                double epsilon = _stepValue * 0.001;
 
-                foreach (string datum in data)
+                for (int i = 0; i < data.Length; ++i)
                 {
-                    double parsed = double.Parse(datum, format);
+                    double parsed = double.Parse(data[i], format);
+
+                    // Checks step in case of domain column
+                    if (i == 0 && !(_stepValue - 0.0 <= double.Epsilon))
+                    {
+                        // If it isn't the first line read
+                        if (_asciiValues.Count > 0)
+                        {
+                            int index = _asciiValues.Count - _curveInformation.Count;
+                            double difference = parsed - _asciiValues[index];
+
+                            if (!(difference - _stepValue <= epsilon))
+                            {
+                                errorMessage = string.Format("Value has a step different than {0}.", _stepValue);
+                                return false;
+                            }
+                        }
+                    }
+
                     _asciiValues.Add(parsed);
                 }
 
