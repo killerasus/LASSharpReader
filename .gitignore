@@ -22,3 +22,6 @@ LASSharpReader/obj/Release/TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B1
 LASSharpReader/obj/Release/TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs
 LASSharpReader/bin/Debug/LASSharpReader.vshost.exe.manifest
 LASSharpReader/obj/Release/LASSharpReader.csproj.FileListAbsolute.txt
+LASSharpReader/obj/Debug/LASSharpEditor.csproj.FileListAbsolute.txt
+LASSharpReaderLib/obj/Debug/LASSharpReaderLib.csproj.FileListAbsolute.txt
+LASSharpReaderLib/obj/Release/LASSharpReaderLib.csproj.FileListAbsolute.txt
