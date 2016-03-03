@@ -38,6 +38,8 @@ namespace LASSharpReader
             _parameterInformation.Clear();
             _otherInformation = "";
             _asciiValues.Clear();
+            _domainReading = true;
+            _curvesRead = 0;
             _foundVersionSection = false;
             _foundWellSection = false;
             _foundCurveSection = false;
@@ -956,7 +958,16 @@ namespace LASSharpReader
 
                 char[] separators = { ' ', '\t' };
                 int count = _curveInformation.Count;
-                string[] splitLine = line.Split(separators);
+                List<string> splitString = new List<string>();
+                System.Text.RegularExpressions.MatchCollection result = System.Text.RegularExpressions.Regex.Matches(line, @"(\S+)");
+
+                foreach( System.Text.RegularExpressions.Match match in result)
+                {
+                    splitString.Add(match.Value);
+                }
+
+                string[] splitLine = splitString.ToArray();
+
                 int readParameters = splitLine.Count<string>();
 
                 if (!_wrap)
@@ -973,34 +984,32 @@ namespace LASSharpReader
                 }
                 else
                 {
-                    //if (_domainReading)
-                    //{
-                    //    if (readParameters == 1)
-                    //    {
-                    //        _domainReading = !_domainReading;
+                    if (_domainReading)
+                    {
+                        if (readParameters == 1)
+                        {
+                            _domainReading = !_domainReading;
                             return processAsciiData(ref errorMessage, splitLine);
-                    //    }
-                    //    else
-                    //    {
-                    //        errorMessage = "Wrap in use, but domain line has more than one value.";
-                    //        return false;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    int expectedDataParameters = Math.Min(count - 1, 1);
+                        }
+                        else
+                        {
+                            errorMessage = "Wrap in use, but domain line has more than one value.";
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        _curvesRead += readParameters;
+                        bool processResult = processAsciiNonDomainData(ref errorMessage, splitLine);
 
-                    //    if (readParameters == expectedDataParameters)
-                    //    {
-                    //        _domainReading = !_domainReading;
-                    //        return processAsciiData(ref errorMessage, splitLine);
-                    //    }
-                    //    else
-                    //    {
-                    //        errorMessage = string.Format("Wrap in use, but data line has less ({0}) values than expected ({1}).", readParameters, expectedDataParameters);
-                    //        return false;
-                    //    }
-                    //}
+                        if (_curvesRead == (_curveInformation.Count - 1))
+                        {
+                            _domainReading = !_domainReading;
+                            _curvesRead = 0;
+                        }
+
+                        return processResult;
+                    }
                 }
             }
             else
@@ -1147,6 +1156,42 @@ namespace LASSharpReader
                         }
                     }
 
+                    _asciiValues.Add(parsed);
+                }
+
+                return true;
+            }
+            catch (ArgumentNullException exception)
+            {
+                errorMessage = exception.Message;
+            }
+            catch (FormatException exception)
+            {
+                errorMessage = exception.Message;
+            }
+            catch (OverflowException exception)
+            {
+                errorMessage = exception.Message;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Process a variable set of string data parameters. Used only in wrap mode.
+        /// </summary>
+        /// <param name="errorMessage">Error message</param>
+        /// <param name="data">Variadic string parameters</param>
+        /// <returns>True if data processing was OK</returns>
+        private bool processAsciiNonDomainData(ref string errorMessage, params string[] data)
+        {
+            try
+            {
+                System.Globalization.NumberFormatInfo format = new System.Globalization.NumberFormatInfo();
+
+                for (int i = 0; i < data.Length; ++i)
+                {
+                    double parsed = double.Parse(data[i], format);
                     _asciiValues.Add(parsed);
                 }
 
@@ -1329,6 +1374,16 @@ namespace LASSharpReader
         /// If wrapping is used in ascii section
         /// </summary>
         private bool _wrap;
+
+        /// <summary>
+        /// If is currently reading domain value in wrap mode
+        /// </summary>
+        private bool _domainReading;
+
+        /// <summary>
+        /// How many profile curves were read in the wrapping block
+        /// </summary>
+        private int _curvesRead;
 
         /// <summary>
         /// If a version section was found
