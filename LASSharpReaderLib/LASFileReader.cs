@@ -1288,8 +1288,7 @@ namespace LASSharpReader
         /// Information line separators in a LAS File
         /// </summary>
         /// <see cref="Modified from http://stackoverflow.com/questions/25521539/regex-for-las-entries"/>
-        /// <see cref="https://regex101.com/r/nK5qM4/2"/>
-        private static string _pattern = @"^([\w\s]*)\s*\.([a-zA-Z0-9_\/]*[^ ])\s*([^:]*)\s*:(.*)$";
+        private static string _pattern = @"^([\w\s]*)\s*\.([^\s]*)\s*([^:]*)\s*:(.*)$";
 
         /// <summary>
         /// State of the reading operation
