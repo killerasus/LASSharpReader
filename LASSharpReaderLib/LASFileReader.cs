@@ -956,7 +956,6 @@ namespace LASSharpReader
                     return false;
                 }
 
-                char[] separators = { ' ', '\t' };
                 int count = _curveInformation.Count;
                 List<string> splitString = new List<string>();
                 System.Text.RegularExpressions.MatchCollection result = System.Text.RegularExpressions.Regex.Matches(line, @"(\S+)");
