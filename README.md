@@ -4,3 +4,4 @@ LASSharpReader is a LAS version 2.0 compliant file reader.It verifies and loads 
 | Service | System | Compiler | Status |
 | ------- | ------ | -------- | -----: |
 |[Travis-CI](https://travis-ci.org/killerasus/LASSharpReader)| Ubuntu 12.04.5 LTS | Mono JIT compiler version 4.2.3 | [![Build Status](https://travis-ci.org/killerasus/LASSharpReader.svg?branch=master)](https://travis-ci.org/killerasus/LASSharpReader) |
+| [Coverity](https://scan.coverity.com/projects/killerasus-lassharpreader) | | | [![Coverity Status](https://scan.coverity.com/projects/8798/badge.svg)](https://scan.coverity.com/projects/killerasus-lassharpreader) |
