@@ -12,6 +12,7 @@ addons:
     project:
       name: "killerasus/LASSharpReader"
       description: "Build submitted via Travis CI"
+    notification_email: killerasus+coverity@gmail.com
     build_command_prepend: "msbuild /t:Clean"
     build_command:   "msbuild /t:Rebuild"
     branch_pattern: master
