@@ -7,12 +7,5 @@ env:
    #   via the "travis encrypt" command using the project repo's public key
    - secure: "hPDwZounVQX3q1wBilpeFeAEvikqXUd93n1x9VRaTdnfyOfF29JNAyTFaOsqtop5tKm/OtXAekIcKXWtCeAduzhDgc2AiW92viSOrM753nFxWGVecCrGOEv9oIeHy8Y3kSNpPRswf1wFZVb1lEHvEtw2sr72CWNpNS+wAn0htAYR/hH27EHlePMtrV+uxB+KVZ2x3AV5xCrjpm9Av6T59lehB8fLG+gn4ZTzhsuca5MP3Hfk5ldmHu93kvWcbe8vShIbFieOZFWYQ5DG6OEMYrpTBPwiRe7THTO4vxHboV8qOvPIVYe2gOuqn0DgAACAgzLba7m/LQqQTiscVHNs0g/9/g691+NNl0Nj1CPEqujydfWSXqqHGnPHL1M4W9iw2ic0WkKyU/SvOcsCkZS3AqIlTVPk2tiJa9PhemBaaT2AeBSBB/x+LwjJSJM93OhMB4u+WEvFytTAvRBoQEN7j2yl4DiuNl0BopeEiaqZVjlIyYMQV4WGPNAQ9FGkWwP62hqx4HeSL8d11DdIWz4j3KIvls5yT7n6HNvGpT0eCbxE9DYLG6On8yZ7EqeBmgLfnyhrD3n7SFfeoVTSwhHeXGmYu6/rrRhZJD42ao+kk8SSyQlPddawsdkoYmvv1SJkcrTjWJ2siQlYRdjwAHtE2IPj5nF7n0RY4Zm/9VLtyMY="
 
-addons:
-  coverity_scan:
-    project:
-      name: "killerasus/LASSharpReader"
-      description: "Build submitted via Travis CI"
-    notification_email: killerasus+coverity@gmail.com
-    build_command_prepend: "msbuild /t:Clean"
-    build_command:   "msbuild /t:Rebuild"
-    branch_pattern: master
+script:
+- msbuild /t:Rebuild
